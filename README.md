@@ -41,7 +41,7 @@ To run the notebooks, install the following packages:
 
 ```bash
 pip install tensorflow tensorflow-datasets scikit-learn matplotlib numpy pandas
-
+```
 
 
 ##  Datasets
