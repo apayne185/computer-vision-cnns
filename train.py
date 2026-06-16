@@ -1,6 +1,7 @@
 """CLI entrypoint: python train.py --config configs/custom_cnn.yaml"""
 import argparse
 
+import mlflow
 import yaml
 from tensorflow import keras
 
@@ -24,6 +25,26 @@ def _build_optimizer(cfg: dict):
     raise ValueError(f"Unknown optimizer type: {kind!r}")
 
 
+def _flatten_params(cfg: dict, prefix: str = "") -> dict:
+    """Flatten a nested config dict into dot-separated keys for MLflow."""
+    out = {}
+    for k, v in cfg.items():
+        key = f"{prefix}.{k}" if prefix else k
+        if isinstance(v, dict):
+            out.update(_flatten_params(v, prefix=key))
+        else:
+            out[key] = v
+    return out
+
+
+class _MLflowCallback(keras.callbacks.Callback):
+    """Logs per-epoch train/val metrics to the active MLflow run."""
+
+    def on_epoch_end(self, epoch, logs=None):
+        if logs:
+            mlflow.log_metrics(logs, step=epoch)
+
+
 def train_custom_cnn(cfg: dict):
     mp = cfg["model_params"]
     tc = cfg["training"]
@@ -36,9 +57,15 @@ def train_custom_cnn(cfg: dict):
         dropout=mp.get("dropout", 0.5),
     )
     model.compile(loss=tc["loss"], optimizer=tc.get("optimizer", "nadam"), metrics=tc["metrics"])
-    history = model.fit(X_train, y_train, epochs=tc["epochs"], validation_data=(X_valid, y_valid))
+    history = model.fit(
+        X_train, y_train,
+        epochs=tc["epochs"],
+        validation_data=(X_valid, y_valid),
+        callbacks=[_MLflowCallback()],
+    )
 
     loss, acc = model.evaluate(X_test, y_test, verbose=0)
+    mlflow.log_metrics({"test_accuracy": acc, "test_loss": loss})
     print(f"\nTest accuracy: {acc:.4f}  |  Test loss: {loss:.4f}")
     return model, history
 
@@ -57,9 +84,11 @@ def train_resnet34(cfg: dict):
         epochs=tc["epochs"],
         batch_size=tc.get("batch_size", 32),
         validation_data=(X_valid, y_valid),
+        callbacks=[_MLflowCallback()],
     )
 
     loss, acc = model.evaluate(X_test, y_test, verbose=0)
+    mlflow.log_metrics({"test_accuracy": acc, "test_loss": loss})
     print(f"\nTest accuracy: {acc:.4f}  |  Test loss: {loss:.4f}")
     return model, history
 
@@ -84,6 +113,7 @@ def train_xception(cfg: dict):
         validation_data=valid_set,
         validation_steps=int(0.15 * dataset_size / tc["batch_size"]),
         epochs=tc["freeze_epochs"],
+        callbacks=[_MLflowCallback()],
     )
 
     # Phase 2: unfreeze and fine-tune the whole network
@@ -100,6 +130,7 @@ def train_xception(cfg: dict):
         validation_data=valid_set,
         validation_steps=int(0.15 * dataset_size / tc["batch_size"]),
         epochs=tc["finetune_epochs"],
+        callbacks=[_MLflowCallback()],
     )
     return model, history
 
@@ -114,7 +145,7 @@ _TRAINERS = {
 def main():
     parser = argparse.ArgumentParser(description="Train a CNN model")
     parser.add_argument("--config", required=True, help="Path to a YAML config file")
-    parser.add_argument("--save", default=None, help="Directory to save the trained model")
+    parser.add_argument("--save", default=None, help="Path to save the trained model")
     args = parser.parse_args()
 
     with open(args.config) as f:
@@ -124,13 +155,18 @@ def main():
     if model_name not in _TRAINERS:
         raise ValueError(f"Unknown model {model_name!r}. Choose from: {list(_TRAINERS)}")
 
-    print(f"Training {model_name} ...")
-    model, _ = _TRAINERS[model_name](cfg)
+    mlflow.set_experiment(model_name)
+    with mlflow.start_run():
+        mlflow.log_params(_flatten_params(cfg))
 
-    if args.save:
-        save_path = args.save if args.save.endswith(".keras") else args.save + ".keras"
-        model.save(save_path)
-        print(f"Saved to {save_path}")
+        print(f"Training {model_name} ...")
+        model, _ = _TRAINERS[model_name](cfg)
+
+        if args.save:
+            save_path = args.save if args.save.endswith(".keras") else args.save + ".keras"
+            model.save(save_path)
+            mlflow.log_artifact(save_path)
+            print(f"Saved to {save_path}")
 
 
 if __name__ == "__main__":
