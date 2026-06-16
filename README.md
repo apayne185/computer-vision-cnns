@@ -23,6 +23,8 @@ tests/            # pytest unit tests
 train.py          # CLI training entrypoint
 evaluate.py       # evaluation + confusion matrix
 predict.py        # single-image inference
+api.py            # FastAPI inference server
+demo.py           # Gradio web demo
 ```
 
 ## Setup

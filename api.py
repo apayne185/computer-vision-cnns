@@ -50,6 +50,8 @@ def health():
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
+    if _model is None:
+        raise HTTPException(status_code=503, detail="Model not loaded")
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
 
