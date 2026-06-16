@@ -30,7 +30,7 @@ def _plot_confusion_matrix(cm, class_names, save_path=None):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", required=True, help="Path to a saved Keras model")
+    parser.add_argument("--model", required=True, help="Path to a saved .keras model")
     parser.add_argument("--confusion-matrix", action="store_true")
     parser.add_argument("--save-plot", default=None, help="Path to save the confusion matrix image")
     args = parser.parse_args()

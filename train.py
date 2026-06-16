@@ -128,8 +128,9 @@ def main():
     model, _ = _TRAINERS[model_name](cfg)
 
     if args.save:
-        model.save(args.save)
-        print(f"Saved to {args.save}")
+        save_path = args.save if args.save.endswith(".keras") else args.save + ".keras"
+        model.save(save_path)
+        print(f"Saved to {save_path}")
 
 
 if __name__ == "__main__":

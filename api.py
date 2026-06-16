@@ -28,7 +28,7 @@ def _load_model():
 
     global _model, _class_names
 
-    model_path = os.environ.get("MODEL_PATH", "saved_models/custom_cnn")
+    model_path = os.environ.get("MODEL_PATH", "saved_models/custom_cnn.keras")
     model_type = os.environ.get("MODEL_TYPE", "fashion_mnist")
 
     _model = tf.keras.models.load_model(model_path)

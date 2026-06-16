@@ -6,5 +6,5 @@ services:
     volumes:
       - ./saved_models:/app/saved_models
     environment:
-      - MODEL_PATH=saved_models/custom_cnn
+      - MODEL_PATH=saved_models/custom_cnn.keras
       - MODEL_TYPE=fashion_mnist
