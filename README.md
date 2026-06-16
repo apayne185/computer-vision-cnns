@@ -62,7 +62,7 @@ Prints per-class precision/recall/F1 and optionally renders a confusion matrix.
 ## Inference
 
 ```bash
-python predict.py --model saved_models/custom_cnn --image my_image.png
+python predict.py --model saved_models/custom_cnn.keras --image my_image.png
 ```
 
 ## Gradio Demo
