@@ -7,7 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 from PIL import Image
 
-os.environ.setdefault("MODEL_PATH", "saved_models/custom_cnn")
+os.environ.setdefault("MODEL_PATH", "saved_models/custom_cnn.keras")
 os.environ.setdefault("MODEL_TYPE", "fashion_mnist")
 
 
