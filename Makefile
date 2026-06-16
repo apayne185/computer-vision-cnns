@@ -1,4 +1,4 @@
-.PHONY: train-cnn train-resnet train-xception evaluate test lint
+.PHONY: train-cnn train-resnet train-xception evaluate serve test lint
 
 train-cnn:
 	python train.py --config configs/custom_cnn.yaml --save saved_models/custom_cnn
@@ -11,6 +11,9 @@ train-xception:
 
 evaluate:
 	python evaluate.py --model saved_models/custom_cnn --confusion-matrix
+
+serve:
+	uvicorn api:app --reload
 
 test:
 	pytest tests/ -v

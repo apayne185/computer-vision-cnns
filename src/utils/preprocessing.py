@@ -6,11 +6,9 @@ from tensorflow import keras
 def central_crop(image):
     shape = tf.shape(image)
     min_dim = tf.reduce_min([shape[0], shape[1]])
-    top_crop = (shape[0] - min_dim) // 4
-    bottom_crop = shape[0] - top_crop
-    left_crop = (shape[1] - min_dim) // 4
-    right_crop = shape[1] - left_crop
-    return image[top_crop:bottom_crop, left_crop:right_crop]
+    top = (shape[0] - min_dim) // 2
+    left = (shape[1] - min_dim) // 2
+    return image[top : top + min_dim, left : left + min_dim]
 
 
 def random_crop(image):
