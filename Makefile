@@ -1,4 +1,4 @@
-.PHONY: train-cnn train-resnet train-xception evaluate serve test lint
+.PHONY: train-cnn train-resnet train-xception evaluate serve docker-build docker-up docker-down test lint
 
 train-cnn:
 	python train.py --config configs/custom_cnn.yaml --save saved_models/custom_cnn
@@ -14,6 +14,15 @@ evaluate:
 
 serve:
 	uvicorn api:app --reload
+
+docker-build:
+	docker build -t cv-cnns-api .
+
+docker-up:
+	docker compose up
+
+docker-down:
+	docker compose down
 
 test:
 	pytest tests/ -v

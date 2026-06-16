@@ -65,6 +65,37 @@ Prints per-class precision/recall/F1 and optionally renders a confusion matrix.
 python predict.py --model saved_models/custom_cnn --image my_image.png
 ```
 
+## API (FastAPI)
+
+Start the inference server locally:
+
+```bash
+make serve
+# or: uvicorn api:app --reload
+```
+
+`POST /predict` — upload an image, get back a class label and confidence scores:
+
+```bash
+curl -X POST http://localhost:8000/predict \
+  -F "file=@my_image.png"
+# {"class":"Sneaker","confidence":0.9821,"scores":{...}}
+```
+
+`GET /health` — liveness check.
+
+## Docker
+
+```bash
+# Build and run
+make docker-up
+
+# Equivalent to:
+docker compose up
+```
+
+The model is volume-mounted from `./saved_models` so you don't need to rebuild the image when you retrain. Set `MODEL_PATH` and `MODEL_TYPE` in `docker-compose.yml` to switch models.
+
 ## Tests
 
 ```bash
@@ -73,11 +104,12 @@ pytest tests/ -v
 make test
 ```
 
+CI runs automatically on every push via GitHub Actions.
+
 ## Requirements
 
 - tensorflow >= 2.12
 - tensorflow-datasets
-- scikit-learn
-- matplotlib / seaborn
-- pyyaml
-- pillow
+- scikit-learn, matplotlib, seaborn
+- fastapi, uvicorn, python-multipart
+- pyyaml, pillow

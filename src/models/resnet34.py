@@ -1,6 +1,5 @@
 from functools import partial
 
-import tensorflow as tf
 from tensorflow import keras
 
 _DefaultConv2D = partial(
