@@ -34,4 +34,4 @@ test:
 	pytest tests/ -v
 
 lint:
-	ruff check src/ train.py evaluate.py predict.py api.py demo.py
+	ruff check src/ train.py evaluate.py predict.py api.py demo.py app.py
