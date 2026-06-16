@@ -12,5 +12,9 @@ saved_models/*
 # Jupyter checkpoints
 .ipynb_checkpoints/
 
+# MLflow
+mlruns/
+mlflow.db
+
 # macOS
 .DS_Store
