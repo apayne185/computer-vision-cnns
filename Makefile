@@ -1,4 +1,4 @@
-.PHONY: train-cnn train-resnet train-xception evaluate serve docker-build docker-up docker-down test lint
+.PHONY: train-cnn train-resnet train-xception evaluate serve ui docker-build docker-up docker-down test lint
 
 train-cnn:
 	python train.py --config configs/custom_cnn.yaml --save saved_models/custom_cnn.keras
@@ -15,6 +15,9 @@ evaluate:
 serve:
 	uvicorn api:app --reload
 
+ui:
+	mlflow ui
+
 docker-build:
 	docker build -t cv-cnns-api .
 
@@ -28,4 +31,4 @@ test:
 	pytest tests/ -v
 
 lint:
-	ruff check src/ train.py evaluate.py predict.py
+	ruff check src/ train.py evaluate.py predict.py api.py
