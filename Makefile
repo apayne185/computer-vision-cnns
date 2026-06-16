@@ -1,4 +1,4 @@
-.PHONY: train-cnn train-resnet train-xception evaluate serve ui docker-build docker-up docker-down test lint
+.PHONY: train-cnn train-resnet train-xception evaluate serve ui demo docker-build docker-up docker-down test lint
 
 train-cnn:
 	python train.py --config configs/custom_cnn.yaml --save saved_models/custom_cnn.keras
@@ -17,6 +17,9 @@ serve:
 
 ui:
 	mlflow ui
+
+demo:
+	python demo.py
 
 docker-build:
 	docker build -t cv-cnns-api .

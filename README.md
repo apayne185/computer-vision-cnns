@@ -65,6 +65,22 @@ Prints per-class precision/recall/F1 and optionally renders a confusion matrix.
 python predict.py --model saved_models/custom_cnn --image my_image.png
 ```
 
+## Gradio Demo
+
+Run a local interactive demo in your browser:
+
+```bash
+make demo
+# or: python demo.py
+```
+
+Upload any clothing image and the model returns top-5 class predictions with confidence scores.
+
+**Deploy to Hugging Face Spaces** (free, gives you a public URL):
+1. Create a new Space at huggingface.co → Gradio SDK
+2. Push `demo.py`, `src/`, and `requirements.txt` to the Space repo
+3. Upload your trained model: `git lfs track "*.keras"` then add `saved_models/custom_cnn.keras`
+
 ## API (FastAPI)
 
 Start the inference server locally:
