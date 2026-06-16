@@ -1,0 +1,14 @@
+model: resnet34
+dataset: fashion_mnist
+
+model_params:
+  input_shape: [224, 224, 1]
+  n_classes: 10
+  resize_to: [224, 224]
+
+training:
+  epochs: 5
+  batch_size: 32
+  optimizer: adam
+  loss: sparse_categorical_crossentropy
+  metrics: [accuracy]

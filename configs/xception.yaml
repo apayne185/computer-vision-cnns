@@ -1,0 +1,23 @@
+model: xception
+dataset: flowers
+base: xception
+
+training:
+  batch_size: 32
+  freeze_epochs: 5
+  finetune_epochs: 10
+  loss: sparse_categorical_crossentropy
+  metrics: [accuracy]
+
+  freeze_optimizer:
+    type: sgd
+    learning_rate: 0.2
+    momentum: 0.9
+    decay: 0.01
+
+  finetune_optimizer:
+    type: sgd
+    learning_rate: 0.01
+    momentum: 0.9
+    nesterov: true
+    decay: 0.001

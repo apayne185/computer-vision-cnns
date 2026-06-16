@@ -1,0 +1,13 @@
+model: custom_cnn
+dataset: fashion_mnist
+
+model_params:
+  input_shape: [28, 28, 1]
+  n_classes: 10
+  dropout: 0.5
+
+training:
+  epochs: 10
+  optimizer: nadam
+  loss: sparse_categorical_crossentropy
+  metrics: [accuracy]

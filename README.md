@@ -1,82 +1,115 @@
 # CNN Models for Image Classification
 
-This repository contains two Jupyter notebooks that demonstrate building and evaluating convolutional neural network (CNN) models for image classification using TensorFlow and Keras.
+Convolutional neural network implementations in TensorFlow/Keras, structured as a runnable Python package with a CLI training interface, YAML configs, and evaluation tooling.
 
-##  Contents
+## Models
 
-### 1. `mnist-cnn.ipynb`
+| Model | Architecture | Dataset | Notes |
+|---|---|---|---|
+| `custom_cnn` | Conv2D → MaxPool → Dense | Fashion-MNIST | Built from scratch |
+| `resnet34` | 34-layer residual network | Fashion-MNIST | Custom `ResidualUnit` layer |
+| `xception` | Xception (ImageNet pretrained) | tf_flowers | Two-phase transfer learning |
 
-This notebook trains a CNN from scratch on the classic MNIST handwritten digit dataset. It includes:
+## Project structure
 
-- Loading and preprocessing the MNIST dataset
-- Building a custom CNN architecture using Keras
-- Compiling the model with optimizer, loss, and evaluation metrics
-- Training the model and visualizing accuracy/loss
-- Evaluating the model on test data
-
-#### Output:
-- Accuracy and loss plots
-- Final test accuracy score
-
-### 2. `test-cnns.ipynb`
-
-This notebook explores the use of pretrained CNN architectures (such as Xception, ResNet34, and ResNet50) for transfer learning on custom datasets using Keras' applications module.
-
-It includes:
-
-- Loading pretrained models with ImageNet weights (`Xception`, etc.)
-- Modifying the classifier head (Global Average Pooling + Dense layer)
-- Fine-tuning the model by unfreezing layers
-- Compiling with SGD + Nesterov momentum
-- Fitting on a custom training and validation set
-
-#### Output:
-- Trained transfer learning model with accuracy/validation metrics
-
----
-
-##  Requirements
-
-To run the notebooks, install the following packages:
-
-```bash
-pip install tensorflow tensorflow-datasets scikit-learn matplotlib numpy pandas
+```
+src/
+  models/         # model definitions (custom_cnn, resnet34, transfer)
+  data/           # dataset loaders (fashion_mnist, flowers)
+  utils/          # preprocessing and metrics helpers
+configs/          # YAML hyperparameter configs per model
+notebooks/        # original exploration notebooks
+tests/            # pytest unit tests
+train.py          # CLI training entrypoint
+evaluate.py       # evaluation + confusion matrix
+predict.py        # single-image inference
 ```
 
+## Setup
 
-##  Datasets
+> Requires Python 3.10 — TensorFlow does not support 3.11+.
 
-- **`mnist-cnn.ipynb`**  
-  Uses the built-in **MNIST** dataset from `keras.datasets`.
+```bash
+pip install -r requirements-dev.txt
+```
 
-- **`test-cnns.ipynb`**  
-  Designed to be used with a **custom image dataset**.  
-  You must define:
-  - `train_set`
-  - `valid_set`
-  - `dataset_size`
+## Training
 
----
+```bash
+# Train the custom CNN
+python train.py --config configs/custom_cnn.yaml --save saved_models/custom_cnn
 
-##  Models Used
+# Train ResNet-34 from scratch
+python train.py --config configs/resnet34.yaml --save saved_models/resnet34
 
-- **Custom CNN**  
-  Built from scratch using basic layers:
-  - `Conv2D`
-  - `MaxPooling2D`
-  - `Dense`
+# Transfer learning with Xception on tf_flowers
+python train.py --config configs/xception.yaml --save saved_models/xception
 
-- **Pretrained CNNs (Transfer Learning)**  
-  Leveraging pretrained weights from ImageNet:
-  - `Xception`
-  - `ResNet34` / `ResNet50` 
+# Or via Make
+make train-cnn
+```
 
----
+Edit any `configs/*.yaml` file to change epochs, optimizer, learning rate, etc. without touching the code.
 
-##  How to Run
+## Evaluation
 
-1. Open the notebooks in **Jupyter Notebook** or **VS Code**.
-2. Ensure all required packages are installed (`tensorflow`, `matplotlib`, `pandas`, etc.).
-3. Run each cell step-by-step, or select **Run All** from the menu.
+```bash
+python evaluate.py --model saved_models/custom_cnn --confusion-matrix
+```
 
----
+Prints per-class precision/recall/F1 and optionally renders a confusion matrix.
+
+## Inference
+
+```bash
+python predict.py --model saved_models/custom_cnn --image my_image.png
+```
+
+## API (FastAPI)
+
+Start the inference server locally:
+
+```bash
+make serve
+# or: uvicorn api:app --reload
+```
+
+`POST /predict` — upload an image, get back a class label and confidence scores:
+
+```bash
+curl -X POST http://localhost:8000/predict \
+  -F "file=@my_image.png"
+# {"class":"Sneaker","confidence":0.9821,"scores":{...}}
+```
+
+`GET /health` — liveness check.
+
+## Docker
+
+```bash
+# Build and run
+make docker-up
+
+# Equivalent to:
+docker compose up
+```
+
+The model is volume-mounted from `./saved_models` so you don't need to rebuild the image when you retrain. Set `MODEL_PATH` and `MODEL_TYPE` in `docker-compose.yml` to switch models.
+
+## Tests
+
+```bash
+pytest tests/ -v
+# or
+make test
+```
+
+CI runs automatically on every push via GitHub Actions.
+
+## Requirements
+
+- tensorflow >= 2.12
+- tensorflow-datasets
+- scikit-learn, matplotlib, seaborn
+- fastapi, uvicorn, python-multipart
+- pyyaml, pillow

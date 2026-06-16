@@ -1,0 +1,12 @@
+tensorflow>=2.12
+tensorflow-datasets
+scikit-learn
+matplotlib
+numpy
+pandas
+seaborn
+pyyaml
+pillow
+fastapi
+uvicorn[standard]
+python-multipart

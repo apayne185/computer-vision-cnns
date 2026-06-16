@@ -1,0 +1,10 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./saved_models:/app/saved_models
+    environment:
+      - MODEL_PATH=saved_models/custom_cnn.keras
+      - MODEL_TYPE=fashion_mnist

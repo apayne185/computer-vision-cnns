@@ -1,0 +1,16 @@
+.git/
+.gitignore
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+notebooks/
+tests/
+configs/
+train.py
+evaluate.py
+predict.py
+requirements-dev.txt
+saved_models/
+.venv/
+venv/
