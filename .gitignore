@@ -19,5 +19,8 @@ mlflow.db
 # HF Spaces repo (separate deployment, not part of this repo)
 cv-cnns/
 
+# SLURM logs
+results/slurm/*.log
+
 # macOS
 .DS_Store
