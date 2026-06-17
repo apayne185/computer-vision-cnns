@@ -32,6 +32,11 @@ gr.Interface(
     inputs=gr.Image(label="Upload a clothing image"),
     outputs=gr.Label(num_top_classes=5, label="Predictions"),
     title="Fashion-MNIST Clothing Classifier",
-    description="Upload a clothing image to classify it into one of 10 categories.",
+    description=(
+        "Classify clothing images into one of 10 categories using a CNN trained on Fashion-MNIST.\n\n"
+        "**Best results:** plain white/grey background, item centred, no people. "
+        "Real-world photos with complex backgrounds or lighting may be less accurate — "
+        "the model was trained on 28×28 thumbnail sketches, not photographs."
+    ),
     flagging_mode="never",
 ).launch()
