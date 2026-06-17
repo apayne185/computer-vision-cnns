@@ -6,11 +6,13 @@ Convolutional neural network implementations in TensorFlow/Keras, structured as 
 
 ## Models
 
-| Model | Architecture | Dataset | Notes |
-|---|---|---|---|
-| `custom_cnn` | Conv2D → MaxPool → Dense | Fashion-MNIST | Built from scratch |
-| `resnet34` | 34-layer residual network | Fashion-MNIST | Custom `ResidualUnit` layer |
-| `xception` | Xception (ImageNet pretrained) | tf_flowers | Two-phase transfer learning |
+| Model | Architecture | Params | Test Accuracy | Inference (CPU) | Notes |
+|---|---|---|---|---|---|
+| `custom_cnn` | Conv2D → MaxPool → Dense | 1.4M | **88.4%** | 174ms | Trained from scratch, 3 epochs |
+| `resnet34` | 34-layer residual network | 21.3M | — | 259ms | Custom `ResidualUnit` layer |
+| `xception` | Xception (ImageNet pretrained) | 20.9M | — | 369ms | Two-phase transfer learning |
+
+> Accuracy for ResNet-34 and Xception pending full training run (GPU recommended).
 
 ## Project structure
 
@@ -58,7 +60,7 @@ Edit any `configs/*.yaml` file to change epochs, optimizer, learning rate, etc. 
 ## Evaluation
 
 ```bash
-python evaluate.py --model saved_models/custom_cnn --confusion-matrix
+python evaluate.py --model saved_models/custom_cnn.keras --confusion-matrix
 ```
 
 Prints per-class precision/recall/F1 and optionally renders a confusion matrix.

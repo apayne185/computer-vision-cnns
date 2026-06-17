@@ -19,18 +19,30 @@ from src.data.fashion_mnist import CLASS_NAMES as FASHION_NAMES
 
 _model = None
 _class_names: list[str] = []
+_norm_mean: np.ndarray | None = None
+_norm_std: np.ndarray | None = None
+
+
+def _load_norm_stats(model_path: str):
+    """Load per-pixel normalization stats saved alongside the model, if present."""
+    stats_path = model_path.replace(".keras", "_norm_stats.npz")
+    if os.path.exists(stats_path):
+        data = np.load(stats_path)
+        return data["X_mean"], data["X_std"]
+    return None, None
 
 
 @asynccontextmanager
 async def _lifespan(app: FastAPI):
     import tensorflow as tf
 
-    global _model, _class_names
+    global _model, _class_names, _norm_mean, _norm_std
 
     model_path = os.environ.get("MODEL_PATH", "saved_models/custom_cnn.keras")
     model_type = os.environ.get("MODEL_TYPE", "fashion_mnist")
 
     _model = tf.keras.models.load_model(model_path)
+    _norm_mean, _norm_std = _load_norm_stats(model_path)
 
     if model_type == "fashion_mnist":
         _class_names = FASHION_NAMES
@@ -57,7 +69,13 @@ async def predict(file: UploadFile = File(...)):
 
     contents = await file.read()
     img = Image.open(io.BytesIO(contents)).convert("L").resize((28, 28))
-    arr = np.array(img, dtype="float32")[..., np.newaxis] / 255.0
+    arr = np.array(img, dtype="float32")[..., np.newaxis]
+
+    if _norm_mean is not None and _norm_std is not None:
+        arr = (arr - _norm_mean) / _norm_std
+    else:
+        arr = arr / 255.0
+
     arr = np.expand_dims(arr, axis=0)
 
     probs = _model.predict(arr, verbose=0)[0]
