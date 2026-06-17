@@ -168,6 +168,17 @@ def main():
             mlflow.log_artifact(save_path)
             print(f"Saved to {save_path}")
 
+            # Save per-pixel normalization stats for fashion_mnist models so
+            # inference code can apply the same transform used during training.
+            if cfg.get("dataset") == "fashion_mnist" and cfg["model"] != "resnet34":
+                import numpy as np
+                from src.data.fashion_mnist import normalization_stats
+                stats_path = save_path.replace(".keras", "_norm_stats.npz")
+                X_mean, X_std = normalization_stats()
+                np.savez(stats_path, X_mean=X_mean, X_std=X_std)
+                mlflow.log_artifact(stats_path)
+                print(f"Saved normalization stats to {stats_path}")
+
 
 if __name__ == "__main__":
     main()

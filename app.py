@@ -15,14 +15,23 @@ CLASS_NAMES = [
     "Sandal", "Shirt", "Sneaker", "Bag", "Ankle boot",
 ]
 
-_model = tf.keras.models.load_model(
-    os.environ.get("MODEL_PATH", "saved_models/custom_cnn.keras")
-)
+_MODEL_PATH = os.environ.get("MODEL_PATH", "saved_models/custom_cnn.keras")
+_model = tf.keras.models.load_model(_MODEL_PATH)
+
+_norm_stats = None
+_stats_path = _MODEL_PATH.replace(".keras", "_norm_stats.npz")
+if os.path.exists(_stats_path):
+    _d = np.load(_stats_path)
+    _norm_stats = (_d["X_mean"], _d["X_std"])
 
 
 def predict(image):
     img = Image.fromarray(image).convert("L").resize((28, 28))
-    arr = np.array(img, dtype="float32")[..., np.newaxis] / 255.0
+    arr = np.array(img, dtype="float32")[..., np.newaxis]
+    if _norm_stats is not None:
+        arr = (arr - _norm_stats[0]) / _norm_stats[1]
+    else:
+        arr = arr / 255.0
     probs = _model.predict(np.expand_dims(arr, axis=0), verbose=0)[0]
     return {name: float(p) for name, p in zip(CLASS_NAMES, probs)}
 

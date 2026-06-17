@@ -30,4 +30,6 @@ def preprocess(image, label, randomize=False):
 
 def normalize(X):
     """Scale tensor values to [0, 1]."""
-    return (X - tf.reduce_min(X)) / (tf.reduce_max(X) - tf.reduce_min(X))
+    min_val = tf.reduce_min(X)
+    max_val = tf.reduce_max(X)
+    return (X - min_val) / (max_val - min_val + 1e-7)

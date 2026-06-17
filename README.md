@@ -60,7 +60,7 @@ Edit any `configs/*.yaml` file to change epochs, optimizer, learning rate, etc. 
 ## Evaluation
 
 ```bash
-python evaluate.py --model saved_models/custom_cnn --confusion-matrix
+python evaluate.py --model saved_models/custom_cnn.keras --confusion-matrix
 ```
 
 Prints per-class precision/recall/F1 and optionally renders a confusion matrix.
