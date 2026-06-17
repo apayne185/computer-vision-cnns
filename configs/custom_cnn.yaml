@@ -7,7 +7,7 @@ model_params:
   dropout: 0.5
 
 training:
-  epochs: 10
+  epochs: 3
   optimizer: nadam
   loss: sparse_categorical_crossentropy
   metrics: [accuracy]

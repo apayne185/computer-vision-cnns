@@ -4,11 +4,12 @@ Usage:
     uvicorn api:app --reload
 
 Environment variables:
-    MODEL_PATH  Path to a saved Keras model (default: saved_models/custom_cnn)
+    MODEL_PATH  Path to a saved Keras model (default: saved_models/custom_cnn.keras)
     MODEL_TYPE  'fashion_mnist' or 'flowers'  (default: fashion_mnist)
 """
 import io
 import os
+from contextlib import asynccontextmanager
 
 import numpy as np
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -16,14 +17,12 @@ from PIL import Image
 
 from src.data.fashion_mnist import CLASS_NAMES as FASHION_NAMES
 
-app = FastAPI(title="CNN Image Classifier", version="1.0")
-
 _model = None
 _class_names: list[str] = []
 
 
-@app.on_event("startup")
-def _load_model():
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
     import tensorflow as tf
 
     global _model, _class_names
@@ -38,6 +37,11 @@ def _load_model():
     else:
         raise ValueError(f"Unknown MODEL_TYPE: {model_type!r}")
 
+    yield
+
+
+app = FastAPI(title="CNN Image Classifier", version="1.0", lifespan=_lifespan)
+
 
 @app.get("/health")
 def health():
@@ -46,6 +50,8 @@ def health():
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
+    if _model is None:
+        raise HTTPException(status_code=503, detail="Model not loaded")
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
 
