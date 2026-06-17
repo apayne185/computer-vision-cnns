@@ -2,6 +2,8 @@
 
 Convolutional neural network implementations in TensorFlow/Keras, structured as a runnable Python package with a CLI training interface, YAML configs, and evaluation tooling.
 
+**[Live demo on Hugging Face Spaces](https://huggingface.co/spaces/apayne1850/cv-cnns)**
+
 ## Models
 
 | Model | Architecture | Dataset | Notes |
