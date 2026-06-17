@@ -16,5 +16,8 @@ saved_models/*
 mlruns/
 mlflow.db
 
+# HF Spaces repo (separate deployment, not part of this repo)
+cv-cnns/
+
 # macOS
 .DS_Store
