@@ -26,6 +26,9 @@ nvidia-smi
 echo "=== Verifying GPU visible to TF ==="
 python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
 
+# Synchronous CUDA errors so we get the real message instead of a generic abort
+export CUDA_LAUNCH_BLOCKING=1
+
 echo "=== Training ResNet-34 ==="
 python train.py --config configs/resnet34.yaml --save saved_models/resnet34.keras
 
