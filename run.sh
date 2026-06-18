@@ -12,6 +12,13 @@ set -eo pipefail
 source ~/miniforge3/bin/activate cnn-env
 export PYTHONPATH=.:${PYTHONPATH:-}
 
+# Make pip-installed CUDA libraries visible to TensorFlow
+export LD_LIBRARY_PATH=$(python -c "
+import os, glob, site
+paths = glob.glob(os.path.join(site.getsitepackages()[0], 'nvidia', '*', 'lib'))
+print(':'.join(paths))
+"):/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}
+
 echo "=== GPU info ==="
 nvidia-smi
 
