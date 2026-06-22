@@ -36,8 +36,11 @@ def load(resize_to=None):
     X_test = X_test[..., np.newaxis].astype("float32")
 
     if resize_to is not None:
-        X_full = tf.image.resize(X_full, resize_to).numpy() / 255.0
-        X_test = tf.image.resize(X_test, resize_to).numpy() / 255.0
+        # Force CPU: GPU ResizeBilinear uses int32 element count which overflows
+        # at 60k × 224 × 224 = 3B elements (> INT_MAX).
+        with tf.device("/CPU:0"):
+            X_full = tf.image.resize(X_full, resize_to).numpy() / 255.0
+            X_test = tf.image.resize(X_test, resize_to).numpy() / 255.0
     else:
         X_mean, X_std = normalization_stats()
         X_full = (X_full - X_mean) / X_std
